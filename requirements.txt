@@ -2,6 +2,7 @@ flask
 flask-cors
 crewai
 langchain
-langchain-google-genai
+langchain-community
+openai
 crewai-tools
 supabase
