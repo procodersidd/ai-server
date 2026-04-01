@@ -14,41 +14,33 @@ def home():
     return '''
 <!DOCTYPE html>
 <html>
-<body style="font-family:Arial;max-width:800px;margin:50px auto;padding:20px;">
-<h1>🧠 Geopolitical AI Research</h1>
-<input id="topic" placeholder="india pakistan" style="width:70%;padding:15px;font-size:16px;">
-<button onclick="analyze()" style="padding:15px;font-size:16px;background:#4285f4;color:white;border:none;">🔍 RESEARCH</button>
-<div id="result" style="background:#f5f5f5;padding:20px;margin-top:20px;border-radius:8px;min-height:100px;"></div>
+<body style="font-family:Arial;max-width:800px;margin:50px auto;">
+<h1>🧠 AI Research Bot</h1>
+<input id="input" placeholder="US-China trade war 2025" style="width:70%;padding:15px;">
+<button onclick="go()" style="padding:15px;background:#4285f4;color:white;border:none;">🔍 ANALYZE</button>
+<pre id="output" style="background:#f0f0f0;padding:20px;margin-top:20px;border-radius:8px;"></pre>
 
 <script>
-async function analyze() {
-    const topic = document.getElementById('topic').value || 'world news';
-    const resultDiv = document.getElementById('result');
-    resultDiv.innerHTML = '🔍 AI Researching (10-20s)...';
+async function go() {
+    const topic = document.getElementById('input').value;
+    const out = document.getElementById('output');
+    out.textContent = 'Researching...';
     
-    try {
-        const res = await fetch('/analyze', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({topic: topic})
-        });
-        const data = await res.json();
-        
-        resultDiv.innerHTML = `
-            <h3>📊 Analysis: ${data.topic}</h3>
-            <div style="white-space:pre-wrap;line-height:1.6;">${data.analysis}</div>
-            <p><small>Tokens: ${data.tokens || 0}</small></p>
-        `;
-    } catch(e) {
-        resultDiv.innerHTML = '❌ Error: ' + e.message;
-    }
+    const res = await fetch('/analyze', {
+        method: 'POST',
+        body: JSON.stringify({topic}),
+        headers: {'Content-Type': 'application/json'}
+    });
+    const data = await res.json();
+    
+    out.textContent = `Topic: ${topic}
+
+${data.analysis || data.result || 'No response'}`;
 }
 </script>
 </body>
 </html>
     '''
-
-@app.route('/analyze', methods=['POST'])
 def analyze():
     try:
         data = request.get_json()
