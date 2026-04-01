@@ -1,32 +1,27 @@
 from crewai.tools import tool
 from supabase import create_client, Client
+import os
 
 @tool("DatabaseWriter")
 def save_to_cloud(headline: str, content: str):
     """
-    Saves a completed geopolitical intelligence report to Supabase database.
-
-    Args:
-        headline (str): The topic/title of the report
-        content (str): The full generated report
-
-    Returns:
-        str: Success or error message
+    Saves geopolitical intelligence report to Supabase.
     """
     try:
-        url = "https://wlayjqoaofcwkzavctfh.supabase.co"
-        key = "YOUR_SUPABASE_KEY"
-
+        # 🔑 Railway ENV vars
+        url = os.getenv("SUPABASE_URL", "https://xicixcsmuivrjzpzgdgf.supabase.co")
+        key = os.getenv("SUPABASE_KEY", "sb_publishable_2fkjImrJRSXdgwDeZ3Q7Vg_CpGm5cs7")
+        
         supabase: Client = create_client(url, key)
-
+        
         data = {
             "headline": headline,
-            "report_content": content
+            "report_content": content,
+            "created_at": "now()"
         }
-
-        supabase.table("intelligence_reports").insert(data).execute()
-
-        return "Saved to cloud"
-
+        
+        result = supabase.table("intelligence_reports").insert(data).execute()
+        return f"✅ Saved report ID: {result.data[0]['id']}"
+        
     except Exception as e:
-        return f"DB Error: {str(e)}"
+        return f"❌ DB Error: {str(e)}"
