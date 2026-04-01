@@ -2,7 +2,7 @@ import os
 from crewai import Agent, Task, Crew, Process
 from crewai_tools import SerperDevTool
 from langchain_google_genai import ChatGoogleGenerativeAI
-from cloud_tool import save_to_cloud
+from cloud_intelligence import save_to_cloud
 
 # 🔴 HARDCODED KEYS (your choice)
 os.environ["GOOGLE_API_KEY"] = "AIzaSyAX008Hp4lj26WUB-FuxDfkwJ6XICJizpk"
