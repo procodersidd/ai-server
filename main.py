@@ -8,7 +8,6 @@ CORS(app)
 
 # ✅ YOUR KEY HARDCODED (works instantly)
 genai.configure(api_key="AIzaSyAX008Hp4lj26WUB-FuxDfkwJ6XICJizpk")
-
 HTML = """
 <!DOCTYPE html>
 <html><head><title>AI Research</title>
