@@ -11,33 +11,23 @@ def home():
     return '''
 <!DOCTYPE html>
 <html>
-<body style="font-family:Arial,sans-serif;max-width:900px;margin:50px auto;background:#f8f9fa;padding:30px;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.1);">
-<h1 style="color:#2c3e50;text-align:center;">🤖 Intelligence Engine</h1>
-<p style="text-align:center;color:#7f8c8d;margin-bottom:30px;">CrewAI + Gemini | Historian → Critic → Architect</p>
-
-<div style="display:flex;gap:15px;margin-bottom:30px;flex-wrap:wrap;">
-<input id="topic" placeholder="india vs pakistan" style="flex:1;min-width:300px;padding:18px;font-size:16px;border:2px solid #ddd;border-radius:10px;">
-<button onclick="research()" style="padding:18px 35px;background:#3498db;color:white;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-weight:bold;">🔍 RUN ANALYSIS</button>
-</div>
-
-<div id="status" style="text-align:center;padding:15px;margin-bottom:20px;border-radius:8px;font-weight:bold;"></div>
-<pre id="output" style="background:#2c3e50;color:#ecf0f1;padding:25px;border-radius:12px;font-size:15px;line-height:1.6;min-height:300px;max-height:600px;overflow:auto;border-left:5px solid #3498db;"></pre>
+<body style="font-family:Arial;max-width:1000px;margin:50px auto;background:#f8f9fa;padding:30px;">
+<h1 style="color:#1e3a8a;">🤖 Intelligence Platform</h1>
+<input id="topic" placeholder="india vs pakistan" style="width:70%;padding:20px;font-size:18px;border:2px solid #e5e7eb;border-radius:12px;">
+<button onclick="analyze()" style="padding:20px 40px;background:#3b82f6;color:white;border:none;border-radius:12px;font-size:18px;cursor:pointer;">🔍 RUN ANALYSIS</button>
+<div id="status" style="margin:20px 0;padding:15px;border-radius:8px;font-weight:bold;"></div>
+<div id="result" style="background:#1f2937;color:#f9fafb;padding:25px;border-radius:12px;font-size:15px;line-height:1.6;min-height:400px;border-left:5px solid #3b82f6;white-space:pre-wrap;"></div>
 
 <script>
-async function research() {
+async function analyze() {
     const topic = document.getElementById('topic').value.trim();
-    if(!topic) {
-        alert('Enter topic!');
-        return;
-    }
+    if(!topic) return alert('Enter topic!');
     
     const status = document.getElementById('status');
-    const output = document.getElementById('output');
+    const result = document.getElementById('result');
     
-    status.style.background = '#fff3cd';
-    status.style.color = '#856404';
-    status.textContent = `🔍 Analyzing "${topic}"... (60-180s)`;
-    output.textContent = 'Initializing Intelligence Engine...\nHistorian researching...\n';
+    status.innerHTML = `<div style="background:#fef3c7;color:#92400e;padding:10px;border-radius:6px;">🔍 "${topic}" - CrewAI activated (2-3 mins)</div>`;
+    result.textContent = 'Historian researching web data...\n';
     
     try {
         const response = await fetch('/analyze', {
@@ -48,25 +38,15 @@ async function research() {
         
         const data = await response.json();
         
-        status.style.background = '#d4edda';
-        status.style.color = '#155724';
-        status.textContent = '✅ Analysis Complete';
+        // ✅ DIRECT DISPLAY - NO data.topic nonsense
+        status.innerHTML = `<div style="background:#d1fae5;color:#065f46;padding:10px;border-radius:6px;">✅ Complete: ${topic}</div>`;
+        result.textContent = data.result || 'Analysis ready';
         
-        // ✅ FIXED - Direct topic + result
-        output.textContent = `Topic: ${topic}\n\n${data.result || data.analysis || 'No output'}\n\n---\nIntelligence Engine Complete`;
-        
-    } catch(error) {
-        status.style.background = '#f8d7da';
-        status.style.color = '#721c24';
-        status.textContent = '❌ Error';
-        output.textContent = `Error: ${error.message}`;
+    } catch(e) {
+        status.innerHTML = `<div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:6px;">❌ Error</div>`;
+        result.textContent = 'Error: ' + e.message;
     }
 }
-
-// Enter key
-document.getElementById('topic').addEventListener('keypress', function(e) {
-    if(e.key === 'Enter') research();
-});
 </script>
 </body>
 </html>'''
@@ -75,15 +55,21 @@ document.getElementById('topic').addEventListener('keypress', function(e) {
 def analyze():
     topic = request.json.get('topic', 'news')
     
-    # Run CrewAI (can take 2+ mins)
-    result = run_perfected_analysis(topic)
-    
-    return jsonify({
-        'topic': topic,
-        'result': str(result),
-        'status': 'complete'
-    })
+    # 🔥 SYNCHRONOUS - Waits for CrewAI (no threading mess)
+    status_msg = f'Analyzing "{topic}"...\n'
+    try:
+        result = run_perfected_analysis(topic)
+        return jsonify({
+            'topic': topic,
+            'result': str(result)  # ✅ Direct string - no parsing issues
+        })
+    except Exception as e:
+        return jsonify({
+            'topic': topic,
+            'result': f'ERROR: {str(e)}',
+            'error': True
+        })
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port)
